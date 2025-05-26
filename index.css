@@ -1,0 +1,209 @@
+:root {
+  --primary: #4e73df;
+  --success: #1cc88a;
+  --warning: #f6c23e;
+  --danger: #e74a3b;
+  --secondary: #858796;
+  --light: #f8f9fc;
+  --dark: #5a5c69;
+  --border-radius: 0.35rem;
+  --box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+}
+
+body {
+  font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 
+               'Helvetica Neue', Arial, sans-serif;
+  color: var(--dark);
+  background-color: var(--light);
+}
+
+.pageContainer {
+  background-color: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  padding: 2rem;
+  margin-bottom: 3rem;
+}
+
+.headline {
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
+}
+
+.reportContainer {
+  margin: 2rem 0;
+}
+
+.statusContainer {
+  border: 1px solid #e3e6f0;
+  border-radius: var(--border-radius);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s;
+}
+
+.statusContainer:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+
+.statusStreamContainer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+  gap: 0.25rem;
+}
+
+.statusSquare {
+  border-radius: 0.2rem;
+  height: 2rem;
+  min-width: 0.5rem;
+  flex-grow: 1;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.statusSquare:hover {
+  opacity: 0.8;
+  transform: scaleY(1.1);
+}
+
+.statusTitle {
+  font-weight: 600;
+  color: var(--dark);
+}
+
+.statusHeadline {
+  padding: 0.25rem 0.75rem;
+  border-radius: 50rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.sectionUrl {
+  font-size: 0.875rem;
+  color: var(--primary);
+}
+
+.statusUptime {
+  font-size: 0.875rem;
+  color: var(--secondary);
+}
+
+/* Status Colors */
+.success {
+  background-color: var(--success);
+  color: white;
+}
+
+.failure {
+  background-color: var(--danger);
+  color: white;
+}
+
+.nodata {
+  background-color: #dddfeb;
+  color: #b7b9cc;
+}
+
+.partial {
+  background-color: var(--warning);
+  color: white;
+}
+
+/* Tooltip */
+.tooltip {
+  position: absolute;
+  z-index: 1070;
+  background: white;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  padding: 1rem;
+  width: 280px;
+  font-size: 0.875rem;
+  transition: opacity 0.2s;
+}
+
+.tooltipArrow {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 0 5px 5px;
+  border-bottom-color: white;
+}
+
+.tooltipDateTime {
+  color: var(--secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.tooltipDescription {
+  color: var(--dark);
+  margin-top: 0.5rem;
+}
+
+.tooltipStatus {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 50rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .statusHeader {
+    display: flex !important;  /* 强制 Flex 布局 */
+    flex-wrap: wrap;           /* 允许换行（如果太长） */
+    align-items: center;       /* 垂直居中 */
+    gap: 8px;                  /* 元素间距 */
+  }
+
+  /* 调整 status 标签样式 */
+  .statusHeadline {
+    margin-left: 0 !important; /* 移除左边距 */
+    margin-top: 0 !important;  /* 移除顶部边距 */
+    white-space: nowrap;       /* 防止换行 */
+  }
+
+  /* 调整 URL 和 uptime 的布局 */
+  .statusSubtitle {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  /* 确保 uptime 文本换行（避免溢出） */
+  .statusUptime {
+    white-space: normal !important;
+  }
+  
+  .pageContainer {
+    padding: 1.5rem;
+  }
+  
+  .statusHeader, 
+  .statusSubtitle {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .statusUptime {
+    margin-left: 0;
+    margin-top: 0.5rem;
+    text-align: left;
+  }
+  
+  .statusSquare {
+    min-width: 2px;
+    height: 1.5rem;
+  }
+}
