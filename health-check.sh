@@ -32,11 +32,19 @@ do
   url="${URLSARRAY[index]}"
   echo "  $key=$url"
 
+  result="failed"
   for i in 1 2 3 4; 
   do
-    response=$(curl --write-out '%{http_code}' --silent --output /dev/null $url)
-    if [ "$response" -eq 200 ] || [ "$response" -eq 202 ] || [ "$response" -eq 301 ] || [ "$response" -eq 302 ] || [ "$response" -eq 307 ]; then
-      result="success"
+    response=$(curl --max-time 30 --write-out '%{http_code}' --silent --output /dev/null $url)
+    curl_exit_code=$?
+    
+    if [ $curl_exit_code -eq 0 ]; then
+      if [ "$response" -eq 200 ] || [ "$response" -eq 202 ] || [ "$response" -eq 301 ] || [ "$response" -eq 302 ] || [ "$response" -eq 307 ]; then
+        result="success"
+        break
+      else
+        result="failed"
+      fi
     else
       result="failed"
     fi

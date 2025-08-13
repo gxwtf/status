@@ -55,22 +55,27 @@ function constructStatusSquare(key, date, uptimeVal) {
   const color = getColor(uptimeVal);
   let square = templatize("statusSquareTemplate", {
     color: color,
-    tooltip: getTooltip(key, date, color),
+    "data-status": color,
   });
 
-  const show = () => {
-    showTooltip(square, key, date, color);
-  };
-  square.addEventListener("mouseover", show);
-  square.addEventListener("mousedown", show);
+  square.addEventListener("mouseover", () => showTooltip(square, key, date, color));
+  square.addEventListener("mousedown", () => showTooltip(square, key, date, color));
   square.addEventListener("mouseout", hideTooltip);
   return square;
 }
 
 let cloneId = 0;
 function templatize(templateId, parameters) {
-  let clone = document.getElementById(templateId).cloneNode(true);
+  let element = document.getElementById(templateId);
+  if (!element) {
+    console.error(`Template element with ID ${templateId} not found`);
+    return document.createElement('div');
+  }
+  
+  let clone = element.cloneNode(true);
   clone.id = "template_clone_" + cloneId++;
+  clone.style.display = ''; // Remove any template hiding
+  
   if (!parameters) {
     return clone;
   }
@@ -83,12 +88,12 @@ function applyTemplateSubstitutions(node, parameters) {
   const attributes = node.getAttributeNames();
   for (var ii = 0; ii < attributes.length; ii++) {
     const attr = attributes[ii];
-    const attrVal = node.getAttribute(attr);
+    let attrVal = node.getAttribute(attr);
     node.setAttribute(attr, templatizeString(attrVal, parameters));
   }
 
-  if (node.childElementCount == 0) {
-    node.innerText = templatizeString(node.innerText, parameters);
+  if (node.childElementCount === 0 && node.textContent) {
+    node.textContent = templatizeString(node.textContent, parameters);
   } else {
     const children = Array.from(node.children);
     children.forEach((n) => {
@@ -98,35 +103,33 @@ function applyTemplateSubstitutions(node, parameters) {
 }
 
 function templatizeString(text, parameters) {
-  if (parameters) {
-    for (const [key, val] of Object.entries(parameters)) {
-      text = text.replaceAll("$" + key, val);
-    }
+  if (parameters && text) {
+    return text.replace(/\$(\w+)/g, (_, key) => parameters[key] || '');
   }
-  return text;
+  return text || '';
 }
 
 function getStatusText(color) {
   return color == "nodata"
-    ? "No Data Available"
+    ? "无可用数据"
     : color == "success"
-    ? "Fully Operational"
+    ? "正常工作"
     : color == "failure"
-    ? "Major Outage"
+    ? "大型事故"
     : color == "partial"
-    ? "Partial Outage"
+    ? "小型事故"
     : "Unknown";
 }
 
 function getStatusDescriptiveText(color) {
   return color == "nodata"
-    ? "No Data Available: Health check was not performed."
+    ? "当天未进行运行状况检测。"
     : color == "success"
-    ? "No downtime recorded on this day."
+    ? "当天未检测出任何事故。"
     : color == "failure"
-    ? "Major outages recorded on this day."
+    ? "当天检测出了大型事故，站点完全无法工作。"
     : color == "partial"
-    ? "Partial outages recorded on this day."
+    ? "当天检测出了小型事故，站点部分无法工作。"
     : "Unknown";
 }
 
@@ -137,7 +140,9 @@ function getTooltip(key, date, quartile, color) {
 
 function create(tag, className) {
   let element = document.createElement(tag);
-  element.className = className;
+  if (className) {
+    element.className = className;
+  }
   return element;
 }
 
@@ -164,7 +169,7 @@ function getDayAverage(val) {
   if (!val || val.length == 0) {
     return null;
   } else {
-    return val.reduce((a, v) => a + v) / val.length;
+    return val.reduce((a, v) => a + v, 0) / val.length;
   }
 }
 
@@ -176,29 +181,30 @@ function splitRowsByDate(rows) {
   let dateValues = {};
   let sum = 0,
     count = 0;
-  for (var ii = 0; ii < rows.length; ii++) {
+  for (var ii = rows.length - 1; ii >= 0; ii--) {
     const row = rows[ii];
-    if (!row) {
+    if (!row || !row.trim()) {
       continue;
     }
 
     const [dateTimeStr, resultStr] = row.split(",", 2);
-    const dateTime = new Date(Date.parse(dateTimeStr.replace(/-/g, "/") + " GMT"));
+    if (!dateTimeStr || !resultStr) continue;
+
+    // Fix for Safari date parsing
+    const parsedDate = dateTimeStr.replace(/-/g, "/") + " GMT";
+    const dateTime = new Date(parsedDate);
+    if (isNaN(dateTime.getTime())) continue;
+
     const dateStr = dateTime.toDateString();
 
-    let resultArray = dateValues[dateStr];
-    if (!resultArray) {
-      resultArray = [];
-      dateValues[dateStr] = resultArray;
-      if (dateValues.length > maxDays) {
-        break;
-      }
+    let resultArray = dateValues[dateStr] || [];
+    dateValues[dateStr] = resultArray;
+    
+    if (Object.keys(dateValues).length > maxDays) {
+      break;
     }
 
-    let result = 0;
-    if (resultStr.trim() == "success") {
-      result = 1;
-    }
+    let result = resultStr.trim() === "success" ? 1 : 0;
     sum += result;
     count++;
 
@@ -214,39 +220,70 @@ let tooltipTimeout = null;
 function showTooltip(element, key, date, color) {
   clearTimeout(tooltipTimeout);
   const toolTipDiv = document.getElementById("tooltip");
+  if (!toolTipDiv) return;
 
-  document.getElementById("tooltipDateTime").innerText = date.toDateString();
-  document.getElementById("tooltipDescription").innerText =
-    getStatusDescriptiveText(color);
-
+  const tooltipDateTime = document.getElementById("tooltipDateTime");
+  const tooltipDescription = document.getElementById("tooltipDescription");
   const statusDiv = document.getElementById("tooltipStatus");
-  statusDiv.innerText = getStatusText(color);
-  statusDiv.className = color;
 
-  toolTipDiv.style.top = element.offsetTop + element.offsetHeight + 10;
-  toolTipDiv.style.left =
-    element.offsetLeft + element.offsetWidth / 2 - toolTipDiv.offsetWidth / 2;
+  if (tooltipDateTime) tooltipDateTime.textContent = date.toDateString();
+  if (tooltipDescription) tooltipDescription.textContent = getStatusDescriptiveText(color);
+  if (statusDiv) {
+    statusDiv.textContent = getStatusText(color);
+    statusDiv.className = "tooltipStatus " + color;
+  }
+
+  const rect = element.getBoundingClientRect();
+  toolTipDiv.style.top = (rect.top + rect.height + window.scrollY + 10) + "px";
+  toolTipDiv.style.left = (rect.left + rect.width / 2 - toolTipDiv.offsetWidth / 2) + "px";
   toolTipDiv.style.opacity = "1";
+  toolTipDiv.style.visibility = "visible";
 }
 
 function hideTooltip() {
   tooltipTimeout = setTimeout(() => {
     const toolTipDiv = document.getElementById("tooltip");
-    toolTipDiv.style.opacity = "0";
-  }, 1000);
+    if (toolTipDiv) {
+      toolTipDiv.style.opacity = "0";
+      toolTipDiv.style.visibility = "hidden";
+    }
+  }, 300);
 }
 
 async function genAllReports() {
-  const response = await fetch("urls.cfg");
-  const configText = await response.text();
-  const configLines = configText.split("\n");
-  for (let ii = 0; ii < configLines.length; ii++) {
-    const configLine = configLines[ii];
-    const [key, url] = configLine.split("=");
-    if (!key || !url) {
-      continue;
+  try {
+    const response = await fetch("urls.cfg");
+    if (!response.ok) throw new Error("Failed to load config");
+    
+    const configText = await response.text();
+    const configLines = configText.split("\n");
+    const reportsContainer = document.getElementById("reports");
+    
+    if (!reportsContainer) {
+      console.error("Reports container not found");
+      return;
     }
 
-    await genReportLog(document.getElementById("reports"), key, url);
+    for (let ii = 0; ii < configLines.length; ii++) {
+      const configLine = configLines[ii].trim();
+      if (!configLine || configLine.startsWith("#")) continue;
+
+      const [key, url] = configLine.split("=").map(s => s.trim());
+      if (!key || !url) continue;
+
+      await genReportLog(reportsContainer, key, url);
+    }
+  } catch (error) {
+    console.error("Error generating reports:", error);
+    // Optionally show error message to user
+    const reportsContainer = document.getElementById("reports");
+    if (reportsContainer) {
+      reportsContainer.innerHTML = `
+        <div class="alert alert-danger">
+          <i class="bi bi-exclamation-triangle-fill"></i>
+          无法加载状态数据，请稍后刷新重试
+        </div>
+      `;
+    }
   }
 }

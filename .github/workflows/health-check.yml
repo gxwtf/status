@@ -12,5 +12,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name: Run Shell Script
-        id: shell_script_run
+        id: shell_script_ru
         run: bash ./health-check.sh
+
+permissions:
+  contents: write 
+  pull-requests: write
+  issues: write

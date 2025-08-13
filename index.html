@@ -1,55 +1,77 @@
-<html>
+<!DOCTYPE html>
+<html lang="zh-CN">
   <head>
-    <title>Status Page</title>
+    <meta charset="UTF-8" />
+    <title>广学五题坊状态页</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://gcore.jsdelivr.net/npm/bootstrap@5/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://gcore.jsdelivr.net/npm/bootstrap-icons@1/font/bootstrap-icons.css">
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="index.css" />
+    <link rel="icon" href="gytb.png" />
     <script src="index.js"></script>
   </head>
-  <body>
-    <div class="pageContainer">
-      <div class="headline">
-        <img src="logo.svg" alt="Logo" width="200px" />
-        <span> System Status </span>
-      </div>
-      <div id="reports" class="reportContainer"></div>
-      <div id="tooltip" class="tooltip" style="opacity: 0">
-        <div id="tooltipArrow" class="tooltipArrow"></div>
-        <div id="tooltipDateTime" class="tooltipDateTime"></div>
-        <div id="tooltipStatus" class="tooltipStatus"></div>
-        <hr />
-        <div id="tooltipDescription" class="tooltipDescription"></div>
-      </div>
-      <div id="templates" style="display: none">
-        <div
-          id="statusSquareTemplate"
-          class="statusSquare $color"
-          data-status="$color"
-        ></div>
-        <div id="statusLineTemplate" class="statusLine"></div>
-        <div
-          id="statusStreamContainerTemplate"
-          class="statusStreamContainer"
-        ></div>
-        <div id="statusContainerTemplate" class="statusContainer">
-          <div class="statusHeader">
-            <h6 class="statusTitle">$title&nbsp;</h6>
-            <div class="$color statusHeadline">$status</div>
+  <body class="bg-light">
+    <div class="container py-5">
+      <div class="pageContainer">
+        <div class="text-center mb-5">
+          <div class="headline d-flex align-items-center justify-content-center">
+            <img src="gytb.png" alt="Logo" width="120" class="me-3">
+            <h1 class="m-0">
+              <span class="badge bg-primary fs-4 fw-normal">广学五题坊状态页</span>
+            </h1>
           </div>
-          <div class="statusSubtitle">
-            <div class="sectionUrl"><a href="$url">$url</a></div>
-            <div class="statusUptime">$upTime in the last 30 days</div>
+          <p class="text-muted mt-3">实时监控我们的服务状态</p>
+        </div>
+
+        <div id="reports" class="reportContainer"></div>
+
+        <div id="tooltip" class="tooltip shadow-lg" style="opacity: 0">
+          <div id="tooltipArrow" class="tooltipArrow"></div>
+          <div id="tooltipDateTime" class="tooltipDateTime small text-uppercase fw-semibold"></div>
+          <div id="tooltipStatus" class="tooltipStatus my-2"></div>
+          <hr class="my-2" />
+          <div id="tooltipDescription" class="tooltipDescription"></div>
+        </div>
+
+        <div id="templates" style="display: none">
+          <div id="statusSquareTemplate" class="statusSquare $color" data-status="$color"></div>
+          <div id="statusLineTemplate" class="statusLine"></div>
+          <div id="statusStreamContainerTemplate" class="statusStreamContainer"></div>
+          <div id="statusContainerTemplate" class="statusContainer">
+            <div class="statusHeader d-flex align-items-center mb-2">
+              <h6 class="statusTitle m-0">$title&nbsp;</h6>
+              <div class="$color statusHeadline ms-2">$status</div>
+            </div>
+            <div class="statusSubtitle d-flex align-items-center mb-3">
+              <div class="sectionUrl">
+                <a href="$url" class="text-decoration-none">
+                  <i class="bi bi-link-45deg me-1"></i><span>$url</span>
+                </a>
+              </div>
+              <div class="statusUptime ms-auto">
+                <i class="bi bi-graph-up me-1"></i><span>最近30天: $upTime</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </div>
-    <footer>
-      Forked from
-      <a href="https://github.com/statsig-io/statuspage/"
-        >Statsig's Open-Source Status Page</a
-      >.
+
+    <footer class="text-center py-4 text-muted small">
+      <div class="container">
+        © 2025 广学五题坊 | 备案号：<a href="https://beian.miit.gov.cn/" class="text-decoration-none">京ICP备2025107534号-1</a>
+        <br>
+        Based on <a href="https://github.com/statsig-io/statuspage/" class="text-decoration-none">Statsig Status</a> and <a href="https://getbootstrap.com" class="text-decoration-none">Bootstrap</a>.
+      </div>
     </footer>
+
+    <!-- Bootstrap JS Bundle with Popper -->
+    <script src="https://gcore.jsdelivr.net/npm/bootstrap@5/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      genAllReports();
+    </script>
   </body>
-  <script>
-    genAllReports();
-  </script>
 </html>
