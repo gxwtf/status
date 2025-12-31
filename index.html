@@ -12,6 +12,15 @@
     <link rel="stylesheet" href="index.css" />
     <link rel="icon" href="gytb.png" />
     <script src="index.js"></script>
+    <script>
+      window.addEventListener('DOMContentLoaded', function() {
+        const currentYear = new Date().getFullYear();
+        const yearElements = document.querySelectorAll('.year');
+        yearElements.forEach(element => {
+          element.textContent = currentYear;
+        });
+      });
+    </script>
   </head>
   <body class="bg-light">
     <div class="container py-5">
@@ -62,7 +71,7 @@
 
     <footer class="text-center py-4 text-muted small">
       <div class="container">
-        © 2025 广学五题坊 | 备案号：<a href="https://beian.miit.gov.cn/" class="text-decoration-none">京ICP备2025107534号-1</a>
+        © <span class="year"></span> 广学五题坊 | 备案号：<a href="https://beian.miit.gov.cn/" class="text-decoration-none">京ICP备2025107534号-1</a>
         <br>
         Based on <a href="https://github.com/statsig-io/statuspage/" class="text-decoration-none">Statsig Status</a> and <a href="https://getbootstrap.com" class="text-decoration-none">Bootstrap</a>.
       </div>
